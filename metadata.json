@@ -1,7 +1,5 @@
 {
   "name": "Toolly.online - Pro Image Tools",
-  "description": "Fast, free, and secure client-side image tools. Compress, resize, convert, crop, and turn images to PDF without uploading to a server.",
-  "requestFramePermissions": [
-    "camera"
-  ]
+  "description": "Fast, free, and secure client-side image tools. Compress, resize, convert, crop, and more without uploading to a server.",
+  "requestFramePermissions": []
 }

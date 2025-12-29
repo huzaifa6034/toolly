@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toolly.online | Professional Image Tools</title>
-    <meta name="description" content="Free, fast, and secure online image tools. Compress, resize, convert, and crop images entirely in your browser. No uploads, 100% private.">
+    <meta name="description" content="Free, fast, and secure online image tools. Compress, resize, convert, crop, and more. 100% private browser-based processing.">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
@@ -17,10 +18,11 @@
         .dark .glass { background: rgba(15, 23, 42, 0.8); border-color: rgba(255, 255, 255, 0.1); }
         .bg-checker { background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px; }
         .dark .bg-checker { background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%); }
-        .tool-card { @apply p-8 glass rounded-[2.5rem] hover:-translate-y-2 transition-all cursor-pointer border border-slate-100 dark:border-slate-800 hover:border-blue-500/50 hover:shadow-2xl flex flex-col items-center text-center; }
+        .tool-card { @apply p-8 glass rounded-[2.5rem] hover:-translate-y-2 transition-all cursor-pointer border border-slate-100 dark:border-slate-800 hover:border-blue-500/50 hover:shadow-2xl flex flex-col items-center text-center group; }
         .hidden { display: none !important; }
-        .animate-fade { animation: fadeIn 0.5s ease-out; }
+        .animate-fade { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        input[type="range"] { @apply h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-600; }
     </style>
 <script type="importmap">
 {
@@ -40,7 +42,6 @@
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col">
 
-    <!-- Navbar -->
     <nav class="sticky top-0 z-50 glass border-b bg-white/70 dark:bg-slate-900/70 py-4">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <a href="#" class="flex items-center gap-2" onclick="showView('home')">
@@ -53,103 +54,107 @@
                 <button id="theme-toggle" class="p-2.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
                     <i data-lucide="moon" id="theme-icon" class="w-5 h-5"></i>
                 </button>
-                <a href="#" class="hidden md:block text-sm font-bold text-blue-600" onclick="showView('home')">Home Dashboard</a>
             </div>
         </div>
     </nav>
 
-    <main class="container mx-auto px-6 py-12 flex-grow" id="app-view">
-        <!-- Dashboard / Home View -->
-        <div id="view-home" class="animate-fade space-y-16">
-            <div class="text-center max-w-3xl mx-auto space-y-6 py-12">
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 font-bold text-xs uppercase tracking-widest">
-                    <i data-lucide="shield-check" class="w-4 h-4"></i>
-                    <span>100% Free & No API Key Required</span>
-                </div>
-                <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">Powerful tools for your <span class="text-blue-600">images.</span></h1>
-                <p class="text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-medium">Fast, secure, and professional image processing that runs entirely in your browser. No accounts, no uploads, no catch.</p>
+    <main class="container mx-auto px-6 py-12 flex-grow">
+        <!-- Dashboard -->
+        <div id="view-home" class="animate-fade space-y-12">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-tight">Professional tools for your <span class="text-blue-600">images.</span></h1>
+                <p class="text-xl text-slate-500 dark:text-slate-400 font-medium">100% Free. 100% Secure. Browser-Based Power.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
                 <div class="tool-card" onclick="showView('compress')">
-                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-3xl flex items-center justify-center mb-6">
-                        <i data-lucide="zap" class="w-8 h-8"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3">Compress Image</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Reduce file size while keeping visual quality. Perfect for SEO and fast loading web pages.</p>
+                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="zap"></i></div>
+                    <h3 class="text-xl font-bold">Compress</h3>
+                    <p class="text-sm text-slate-500">Shrink size, keep quality.</p>
                 </div>
                 <div class="tool-card" onclick="showView('resize')">
-                    <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-3xl flex items-center justify-center mb-6">
-                        <i data-lucide="maximize" class="w-8 h-8"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3">Resize Image</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Change dimensions precisely. Lock aspect ratio for social media or custom web layouts.</p>
+                    <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="maximize"></i></div>
+                    <h3 class="text-xl font-bold">Resize</h3>
+                    <p class="text-sm text-slate-500">Perfect pixel dimensions.</p>
                 </div>
                 <div class="tool-card" onclick="showView('convert')">
-                    <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-3xl flex items-center justify-center mb-6">
-                        <i data-lucide="refresh-cw" class="w-8 h-8"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3">Convert Format</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Instantly switch between JPG, PNG, and WebP. Batch processing supported.</p>
+                    <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="refresh-cw"></i></div>
+                    <h3 class="text-xl font-bold">Convert</h3>
+                    <p class="text-sm text-slate-500">JPG, PNG, WebP switcher.</p>
                 </div>
-                <div class="tool-card" onclick="showView('crop')">
-                    <div class="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-3xl flex items-center justify-center mb-6">
-                        <i data-lucide="scissors" class="w-8 h-8"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3">Crop Image</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Trim edges and frame your photos. Easy-to-use visual selector.</p>
+                <div class="tool-card" onclick="showView('ai-art')">
+                    <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="sparkles"></i></div>
+                    <h3 class="text-xl font-bold">AI Art</h3>
+                    <p class="text-sm text-slate-500">Text-to-Image creation.</p>
+                </div>
+                <div class="tool-card" onclick="showView('bg-remover')">
+                    <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="eraser"></i></div>
+                    <h3 class="text-xl font-bold">Remove BG</h3>
+                    <p class="text-sm text-slate-500">Extract subjects instantly.</p>
                 </div>
                 <div class="tool-card" onclick="showView('pdf')">
-                    <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-3xl flex items-center justify-center mb-6">
-                        <i data-lucide="file-text" class="w-8 h-8"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3">Image to PDF</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Combine multiple images into a single professional PDF document.</p>
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 text-slate-600 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="file-text"></i></div>
+                    <h3 class="text-xl font-bold">To PDF</h3>
+                    <p class="text-sm text-slate-500">Bundle images as PDF.</p>
+                </div>
+                <div class="tool-card" onclick="showView('watermark')">
+                    <div class="w-16 h-16 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="type"></i></div>
+                    <h3 class="text-xl font-bold">Watermark</h3>
+                    <p class="text-sm text-slate-500">Add copyright text stamps.</p>
+                </div>
+                <div class="tool-card" onclick="showView('color-picker')">
+                    <div class="w-16 h-16 bg-pink-100 dark:bg-pink-900/30 text-pink-600 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="pipette"></i></div>
+                    <h3 class="text-xl font-bold">Color Picker</h3>
+                    <p class="text-sm text-slate-500">Get Hex codes from pixels.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Tool View Template -->
-        <div id="view-tool" class="hidden animate-fade max-w-6xl mx-auto space-y-8">
-            <button onclick="showView('home')" class="inline-flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-all px-4 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900">
+        <!-- Tool View Workspace -->
+        <div id="view-tool" class="hidden animate-fade max-w-6xl mx-auto space-y-6">
+            <button onclick="showView('home')" class="inline-flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold px-4 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                Back to Dashboard
+                Dashboard
             </button>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
-                <!-- Dropzone & Preview -->
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 <div class="lg:col-span-3 space-y-6">
+                    <!-- Drop Zone -->
                     <div id="drop-zone" class="border-4 border-dashed border-slate-200 dark:border-slate-800 rounded-[3rem] p-24 text-center hover:border-blue-500 hover:bg-blue-50/10 transition-all cursor-pointer group">
-                        <div class="w-24 h-24 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                            <i data-lucide="upload-cloud" class="w-12 h-12"></i>
+                        <div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                            <i data-lucide="upload-cloud"></i>
                         </div>
-                        <h2 class="text-3xl font-black mb-2 tracking-tight">Select your image</h2>
-                        <p class="text-slate-500 dark:text-slate-400 mb-8 font-medium">Click to browse or drag and drop files here</p>
-                        <input type="file" id="file-input" class="hidden" accept="image/*">
-                        <button class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold shadow-2xl shadow-blue-500/40 hover:bg-blue-700 transition-all">Choose File</button>
+                        <h2 class="text-2xl font-black mb-1">Upload your image</h2>
+                        <p class="text-slate-500 text-sm font-medium">Drag & Drop or click to browse</p>
+                        <input type="file" id="file-input" class="hidden" accept="image/*" multiple>
                     </div>
 
+                    <!-- AI Input (Only for AI Art) -->
+                    <div id="ai-input-container" class="hidden glass p-8 rounded-[2.5rem] space-y-4">
+                        <label class="block text-sm font-bold text-slate-500 uppercase tracking-widest">Image Prompt</label>
+                        <textarea id="ai-prompt" placeholder="A futuristic city with neon lights, cinematic lighting, 8k..." class="w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border rounded-3xl outline-none focus:ring-4 focus:ring-purple-500/20 resize-none text-lg font-medium transition-all"></textarea>
+                        <button onclick="generateAI()" class="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold shadow-xl shadow-purple-500/30">Generate with Gemini</button>
+                    </div>
+
+                    <!-- Canvas Workspace -->
                     <div id="workspace" class="hidden space-y-6">
-                        <div class="glass p-6 rounded-[3rem] bg-checker min-h-[500px] flex items-center justify-center relative overflow-hidden shadow-inner">
-                            <img id="preview-image" class="max-w-full max-h-[600px] rounded-xl shadow-2xl">
+                        <div class="glass p-4 rounded-[2.5rem] bg-checker min-h-[400px] flex items-center justify-center relative overflow-hidden shadow-inner">
+                            <canvas id="main-canvas" class="max-w-full max-h-[600px] rounded-xl shadow-2xl transition-all cursor-crosshair"></canvas>
                         </div>
+                        <div id="multi-file-preview" class="hidden grid grid-cols-4 md:grid-cols-6 gap-4 p-4 glass rounded-3xl"></div>
                     </div>
                 </div>
 
-                <!-- Settings Sidebar -->
+                <!-- Control Sidebar -->
                 <div class="space-y-6">
-                    <div id="tool-settings-container" class="hidden sticky top-28 space-y-6">
-                        <div class="glass p-8 rounded-[2.5rem] shadow-xl space-y-8 border border-slate-100 dark:border-slate-800" id="tool-settings">
-                            <!-- Dynamic settings inject here -->
-                        </div>
-                        
-                        <div id="results" class="hidden animate-fade glass p-8 rounded-[2.5rem] bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 space-y-4">
-                            <div class="flex items-center gap-2 text-emerald-600 font-bold">
-                                <i data-lucide="check-circle" class="w-5 h-5"></i>
-                                <span>Success! Processing complete.</span>
+                    <div id="settings-card" class="hidden sticky top-28 glass p-8 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 space-y-6 animate-fade">
+                        <div id="tool-settings"></div>
+                        <div id="results" class="hidden space-y-4 pt-4 border-t">
+                            <div class="flex items-center gap-2 text-emerald-500 font-bold text-sm">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Ready to download
                             </div>
-                            <a id="download-btn" class="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-[1.5rem] font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.02] shadow-xl">
-                                <i data-lucide="download"></i> Download Result
+                            <a id="download-btn" class="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+                                <i data-lucide="download"></i> Download
                             </a>
                         </div>
                     </div>
@@ -158,21 +163,13 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t bg-white dark:bg-slate-900 py-16 mt-20">
-        <div class="container mx-auto px-6 text-center space-y-8">
-            <h3 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Toolly.online</h3>
-            <p class="text-slate-500 dark:text-slate-400 max-w-xl mx-auto font-medium">Professional-grade image toolkit designed for speed and privacy. Files are never uploaded; processing happens 100% locally in your browser.</p>
-            <div class="flex justify-center gap-8 text-slate-300 dark:text-slate-700">
-                <i data-lucide="shield" class="w-6 h-6"></i>
-                <i data-lucide="zap" class="w-6 h-6"></i>
-                <i data-lucide="lock" class="w-6 h-6"></i>
-            </div>
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">© 2025 Toolly.online • Fast • Secure • Free</p>
+    <footer class="border-t bg-white dark:bg-slate-900 py-12 mt-20">
+        <div class="container mx-auto px-6 text-center space-y-4">
+            <h3 class="text-xl font-bold text-blue-600 tracking-tighter">Toolly.online</h3>
+            <p class="text-slate-500 text-sm font-medium">Secure, browser-based professional image toolkit.</p>
         </div>
     </footer>
 
-    <!-- Service Worker script moved to app.js or separate -->
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
