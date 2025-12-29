@@ -2,8 +2,8 @@
 {
   "name": "Toolly.online - Pro Image Tools",
   "short_name": "Toolly",
-  "description": "Professional client-side image tools. Fast, free, and secure.",
-  "start_url": "./index.html",
+  "description": "Fast, free, and secure online image tools. 100% private.",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
